@@ -8,6 +8,7 @@ import java.util.List;
 
 public class DBHolder
 {
+    public static final int NO_ID = -1;
     public static final String ID = "ID", DATE = "Date", DURATION = "Duration",
 
     CALL = "Call",
