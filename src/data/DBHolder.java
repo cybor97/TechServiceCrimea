@@ -21,7 +21,7 @@ public class DBHolder
             ADDRESS = "Address",
             RESULT = "Result";
     //region Singleton pattern
-    private DBHolder instance;
+    private static DBHolder instance;
     //endregion
     private Connection connection;
 
@@ -51,7 +51,7 @@ public class DBHolder
         }
     }
 
-    public DBHolder getInstance()
+    public static DBHolder getInstance()
     {
         if (instance == null)
             instance = new DBHolder();
