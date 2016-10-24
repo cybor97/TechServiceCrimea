@@ -22,7 +22,6 @@ public class DBHolder
             RESULT = "Result";
     //region Singleton pattern
     private static DBHolder instance;
-    //endregion
     private Connection connection;
 
     private DBHolder()
@@ -58,6 +57,8 @@ public class DBHolder
         return instance;
     }
 
+    //endregion
+
     //region GET
     public List<Call> getCalls()
     {
@@ -66,14 +67,13 @@ public class DBHolder
             List<Call> result = new ArrayList<>();
             Statement statement = connection.createStatement();//This one is NEEDED. We should close it before return;
             ResultSet results = statement.executeQuery("SELECT * FROM " + CALLS);
-            if (results.first())
-                do result.add(new Call(results.getInt(ID),
+            while (results.next())
+                result.add(new Call(results.getInt(ID),
                         new DateTime(results.getLong(DATE)),
                         new Duration(results.getLong(DURATION)),
                         results.getBoolean(INCOMING),
                         results.getLong(PHONE_NUMBER),
                         results.getString(COMMENT)));
-                while (results.next());
             statement.close();
             return result;
         } catch (SQLException e)
@@ -90,13 +90,12 @@ public class DBHolder
             List<Departure> result = new ArrayList<>();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT * FROM " + DEPARTURES);
-            if (results.first())
-                do result.add(new Departure(results.getInt(ID),
+            while (results.next())
+                result.add(new Departure(results.getInt(ID),
                         new DateTime(results.getLong(DATE)),
                         new Duration(results.getLong(DURATION)),
                         results.getString(ADDRESS),
                         results.getString(COMMENT)));
-                while (results.next());
             statement.close();
             return result;
         } catch (SQLException e)
@@ -113,11 +112,11 @@ public class DBHolder
         try
         {
             Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, %4s, %5s, %6s);",
+            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, %4s, %5s, '%6s');",
                     CALLS,
                     call.getDate().getMillis(),
                     call.getDuration().getMillis(),
-                    call.isIncoming(),
+                    call.isIncoming() ? 1 : 0,
                     call.getPhoneNumber(),
                     call.getComment()));
             statement.close();
@@ -132,7 +131,7 @@ public class DBHolder
         try
         {
             Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, %4s, %5s);",
+            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, '%4s', '%5s');",
                     DEPARTURES,
                     departure.getDate().getMillis(),
                     departure.getDuration().getMillis(),
@@ -149,24 +148,90 @@ public class DBHolder
     //region SET
     public void setCall(Call call)
     {
-        //TODO:Implement me!
+        try
+        {
+            Statement statement = connection.createStatement();
+            statement.execute(String.format("UPDATE %1s " +
+                            "SET %2s=%3s, %4s=%5s, %6s=%7s, %8s=%9s, %10s='%11s'" +
+                            "WHERE ID = %12s;",
+                    CALLS,
+
+                    DATE,
+                    call.getDate().getMillis(),
+
+                    DURATION,
+                    call.getDuration().getMillis(),
+
+                    INCOMING,
+                    call.isIncoming() ? 1 : 0,
+
+                    PHONE_NUMBER,
+                    call.getPhoneNumber(),
+
+                    COMMENT,
+                    call.getComment(),
+
+                    call.getId()));
+            statement.close();
+        } catch (SQLException e)
+        {
+            System.err.println("DBHolder.setCall()->\n" + e.toString());
+        }
     }
 
     public void setDeparture(Departure departure)
     {
-        //TODO:Implement me!
+        try
+        {
+            Statement statement = connection.createStatement();
+            statement.execute(String.format("UPDATE %1s " +
+                            "SET %2s=%3s, %4s=%5s, %6s='%7s', %8s='%9s'" +
+                            "WHERE ID = %10s;",
+                    DEPARTURES,
+
+                    DATE,
+                    departure.getDate().getMillis(),
+
+                    DURATION,
+                    departure.getDuration().getMillis(),
+
+                    ADDRESS,
+                    departure.getAddress(),
+
+                    RESULT,
+                    departure.getResult(),
+
+                    departure.getId()));
+            statement.close();
+        } catch (SQLException e)
+        {
+            System.err.println("DBHolder.setDeparture()->\n" + e.toString());
+        }
     }
 
     //endregion
     //region REMOVE
     public void removeCall(Call call)
     {
-        //TODO:Implement me!
+        remove(CALLS, call.getId());
     }
 
     public void removeDeparture(Departure departure)
     {
-        //TODO:Implement me!
+        remove(DEPARTURES, departure.getId());
+    }
+
+    private void remove(String tableName, int id)
+    {
+        try
+        {
+            Statement statement = connection.createStatement();
+            statement.execute(String.format("DELETE FROM %1s WHERE %2s = %3d", CALLS, ID, id));
+            statement.close();
+        } catch (SQLException e)
+        {
+            System.err.println("DBHolder.removeCall()->\n" + id);
+        }
     }
     //endregion
 }
