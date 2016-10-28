@@ -5,12 +5,12 @@ import org.joda.time.Duration;
 
 public class Call
 {
-    private int id;
-    private DateTime date;
-    private Duration duration;
-    private boolean incoming;
-    private long phoneNumber;
-    private String comment;
+    private final int id;
+    private final DateTime date;
+    private final Duration duration;
+    private final boolean incoming;
+    private final long phoneNumber;
+    private final String comment;
 
     public Call(int id, DateTime date, Duration duration, boolean incoming, long phoneNumber, String comment)
     {

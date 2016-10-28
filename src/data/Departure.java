@@ -5,10 +5,11 @@ import org.joda.time.Duration;
 
 public class Departure
 {
-    private int id;
-    private DateTime date;
-    private Duration duration;
-    private String address, result;
+    private final int id;
+    private final DateTime date;
+    private final Duration duration;
+    private final String address;
+    private final String result;
 
     public Departure(int id, DateTime date, Duration duration, String address, String result)
     {

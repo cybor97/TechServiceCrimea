@@ -1,6 +1,6 @@
 package data_exchange;
 
-public class RequestProcessor
+class RequestProcessor
 {
     public static Response process(Request request)
     {

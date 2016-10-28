@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Response
 {
-    public List<?> data;
+    private final List<?> data;
 
     public Response()
     {
@@ -25,7 +25,7 @@ public class Response
         this(Collections.singletonList(str));
     }
 
-    public Response(List<?> data)
+    private Response(List<?> data)
     {
         this.data = data;
     }

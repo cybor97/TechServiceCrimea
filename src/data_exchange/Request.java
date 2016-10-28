@@ -2,7 +2,10 @@ package data_exchange;
 
 public class Request
 {
-    private String type, in, by, data;
+    private String type;
+    private String in;
+    private String by;
+    private String data;
 
     public static Request parse(String xml)
     {

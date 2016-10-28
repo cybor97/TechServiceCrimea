@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class TSCClient implements Runnable
+class TSCClient implements Runnable
 {
     private Socket client;
     private Thread manager;
@@ -20,7 +20,7 @@ public class TSCClient implements Runnable
         this.client = client;
     }
 
-    public static String readToEndBlock(BufferedReader reader) throws IOException
+    private static String readToEndBlock(BufferedReader reader) throws IOException
     {
         String result = "";
         String tmp;
@@ -29,7 +29,7 @@ public class TSCClient implements Runnable
         return result.replace("\\n", "\n");
     }
 
-    public static void writeWithEndBlock(OutputStreamWriter writer, String text) throws IOException
+    private static void writeWithEndBlock(OutputStreamWriter writer, String text) throws IOException
     {
         writer.write(String.format("%s\n---END---\n", text.replace("\n", "\\n")));
     }

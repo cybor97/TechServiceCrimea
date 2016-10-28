@@ -29,6 +29,7 @@ public class DBHolder
         try
         {
             connection = DriverManager.getConnection("jdbc:sqlite:TSC.db");
+            connection.setAutoCommit(true);
             Statement statement = connection.createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS " + CALLS + "(" +
                     ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -112,7 +113,7 @@ public class DBHolder
         try
         {
             Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, %4s, %5s, '%6s');",
+            statement.execute(String.format("INSERT INTO %1s VALUES (NULL, %2s, %3s, %4s, %5s,'%6s');",
                     CALLS,
                     call.getDate().getMillis(),
                     call.getDuration().getMillis(),
@@ -131,7 +132,7 @@ public class DBHolder
         try
         {
             Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (%2s, %3s, '%4s', '%5s');",
+            statement.execute(String.format("INSERT INTO %1s VALUES (NULL, %2s, %3s, '%4s', '%5s');",
                     DEPARTURES,
                     departure.getDate().getMillis(),
                     departure.getDuration().getMillis(),

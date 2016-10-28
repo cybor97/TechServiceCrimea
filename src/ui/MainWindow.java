@@ -7,8 +7,10 @@ import java.awt.event.ActionListener;
 
 public class MainWindow extends JFrame implements ActionListener
 {
-    JPanel mainPanel;
-    Button callsButton, departuresButton, exitButton;
+    private final JPanel mainPanel;
+    private final Button callsButton;
+    private final Button departuresButton;
+    private final Button exitButton;
 
     public MainWindow() throws Exception
     {
@@ -16,7 +18,7 @@ public class MainWindow extends JFrame implements ActionListener
         setSize(100, 100);
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((int) (size.getWidth() / 2 - getWidth() / 2), (int) (size.getHeight() / 2 - getHeight() / 2));
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         mainPanel = new JPanel(new GridLayout(0, 1));
 
@@ -35,6 +37,8 @@ public class MainWindow extends JFrame implements ActionListener
         add(mainPanel);
 
         setVisible(true);
+
+        Compiler.compileClass(CallsWindow.class);
     }
 
     @Override
@@ -47,6 +51,10 @@ public class MainWindow extends JFrame implements ActionListener
             else if (source == departuresButton)
                 DeparturesWindow.getInstance().setVisible(true);
             else if (source == exitButton)
+            {
+                CallsWindow.getInstance().dispose();
+                DeparturesWindow.getInstance().dispose();
                 dispose();
+            }
     }
 }
