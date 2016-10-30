@@ -2,6 +2,12 @@ package data;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class Call
 {
@@ -20,6 +26,30 @@ public class Call
         this.incoming = incoming;
         this.phoneNumber = phoneNumber;
         this.comment = comment;
+    }
+
+    public static Call parse(String xml)
+    {
+        if (xml != null && xml.isEmpty())
+            try
+            {
+                Element element = DocumentBuilderFactory
+                        .newInstance()
+                        .newDocumentBuilder()//Hate JAVA for that!
+                        .parse(new ByteArrayInputStream(xml.getBytes("UTF-8")))
+                        .getDocumentElement();
+
+                return new Call(Integer.parseInt(element.getAttribute("ID")),
+                        DateTime.parse(element.getAttribute("Date")),//FIXME: 100% bug with formatting
+                        Period.parse(element.getAttribute("Duration")).toStandardDuration(),//FIXME: 100% bug with formatting
+                        Boolean.parseBoolean(element.getAttribute("Incoming")),
+                        Long.parseLong(element.getAttribute("PhoneNumber")),
+                        element.getTextContent());
+            } catch (Exception e)
+            {
+                System.err.println("Request.parse()->\n" + e.toString());
+            }
+        return null;
     }
 
     public int getId()
@@ -76,4 +106,5 @@ public class Call
     {
         this.comment = comment;
     }
+
 }

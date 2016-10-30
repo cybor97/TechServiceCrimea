@@ -2,14 +2,16 @@ package data_exchange;
 
 import com.sun.org.apache.xerces.internal.impl.PropertyManager;
 import com.sun.xml.internal.stream.writers.XMLStreamWriterImpl;
-import data.Call;
-import data.Departure;
 
-import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamWriter;
+
+import data.Call;
+import data.Departure;
 
 public class Response
 {
@@ -25,13 +27,12 @@ public class Response
         this(Collections.singletonList(str));
     }
 
-    private Response(List<?> data)
+    public Response(List<?> data)
     {
         this.data = data;
     }
 
-    @Override
-    public String toString()
+    public String toXML()
     {
         try
         {
@@ -39,7 +40,7 @@ public class Response
             XMLStreamWriter writer = new XMLStreamWriterImpl(stream, "UTF-8", new PropertyManager(PropertyManager.CONTEXT_WRITER));
             writer.writeStartElement("RICServerResponse");
             for (Object current : data)
-                if (current.getClass() == Call.class)
+                if (current instanceof Call)
                 {
                     Call call = (Call) current;
                     writer.writeStartElement("Call");
@@ -50,7 +51,7 @@ public class Response
                     writer.writeAttribute("PhoneNumber", Long.toString(call.getPhoneNumber()));
                     writer.writeCharacters(call.getComment());
                     writer.writeEndElement();
-                } else if (current.getClass() == Departure.class)
+                } else if (current instanceof Departure)
                 {
                     Departure departure = (Departure) current;
                     writer.writeStartElement("Departure");
@@ -60,7 +61,7 @@ public class Response
                     writer.writeAttribute("Address", departure.getAddress());
                     writer.writeAttribute("Result", departure.getResult());
                     writer.writeEndElement();
-                } else if (current.getClass() == String.class)
+                } else if (current instanceof String)
                 {
                     writer.writeStartElement("Text");
                     writer.writeCharacters(current.toString());

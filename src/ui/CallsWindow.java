@@ -179,7 +179,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         updateDisplayData();
     }
 
-    private void updateDisplayData()
+    public void updateDisplayData()
     {
         DefaultTableModel model = (DefaultTableModel) (table.getModel());
         model.getDataVector().clear();

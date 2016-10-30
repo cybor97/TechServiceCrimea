@@ -1,7 +1,13 @@
 package data_exchange;
 
-class RequestProcessor
+import data.Call;
+import data.DBHolder;
+import data.Departure;
+
+public class RequestProcessor
 {
+    private static DBHolder dbHolder = DBHolder.getInstance();
+
     public static Response process(Request request)
     {
         Response result = new Response();
@@ -13,19 +19,19 @@ class RequestProcessor
                 switch (request.in())
                 {
                     case "Call":
-                        //return new Response(DBHolder.GetCalls());
+                        return new Response(dbHolder.getCalls());
                     case "Departure":
-                        //return new Response(DBHolder.GetDepartureData());
+                        return new Response(dbHolder.getDepartures());
                 }
                 break;
             case "ADD":
                 switch (request.in())
                 {
                     case "Call":
-                        //DBHolder.Add(Call.Parse(req.Data));
+                        dbHolder.addCall(Call.parse(request.getData()));
                         break;
                     case "Departure":
-                        //DBHolder.Add(Departure.Parse(req.Data));
+                        dbHolder.addDeparture(Departure.parse(request.getData()));
                         break;
                 }
                 return new Response("OK");
@@ -33,10 +39,10 @@ class RequestProcessor
                 switch (request.in())
                 {
                     case "Call":
-                        //DBHolder.Set(Call.Parse(request.Data));
+                        dbHolder.setCall(Call.parse(request.getData()));
                         break;
                     case "Departure":
-                        //DBHolder.Set(Departure.Parse(request.Data));
+                        dbHolder.setDeparture(Departure.parse(request.getData()));
                         break;
                 }
                 return new Response("OK");
@@ -45,10 +51,10 @@ class RequestProcessor
                 switch (request.in())
                 {
                     case "Call":
-                        //DBHolder.Remove(Call.Parse(request.Data));
+                        dbHolder.removeCall(Call.parse(request.getData()));
                         break;
                     case "Departure":
-                        //DBHolder.Remove(Departure.Parse(request.Data));
+                        dbHolder.removeDeparture(Departure.parse(request.getData()));
                         break;
                 }
                 return new Response("OK");

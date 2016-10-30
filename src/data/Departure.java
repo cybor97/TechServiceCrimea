@@ -2,6 +2,12 @@ package data;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class Departure
 {
@@ -18,6 +24,29 @@ public class Departure
         this.duration = duration;
         this.address = address;
         this.result = result;
+    }
+
+    public static Departure parse(String xml)
+    {
+        if (xml != null && xml.isEmpty())
+            try
+            {
+                Element element = DocumentBuilderFactory
+                        .newInstance()
+                        .newDocumentBuilder()//Hate JAVA for that!
+                        .parse(new ByteArrayInputStream(xml.getBytes("UTF-8")))
+                        .getDocumentElement();
+
+                return new Departure(Integer.parseInt(element.getAttribute("ID")),
+                        DateTime.parse(element.getAttribute("Date")),//FIXME: 100% bug with formatting
+                        Period.parse(element.getAttribute("Duration")).toStandardDuration(),//FIXME: 100% bug with formatting
+                        element.getAttribute("Incoming"),
+                        element.getAttribute("PhoneNumber"));
+            } catch (Exception e)
+            {
+                System.err.println("Request.parse()->\n" + e.toString());
+            }
+        return null;
     }
 
     public int getId()
@@ -63,5 +92,11 @@ public class Departure
     public void setResult(String result)
     {
         this.result = result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString();
     }
 }

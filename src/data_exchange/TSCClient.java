@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-class TSCClient implements Runnable
+public class TSCClient implements Runnable
 {
     private Socket client;
     private Thread manager;
@@ -90,7 +90,7 @@ class TSCClient implements Runnable
                 client = null;
             } catch (IOException e)
             {
-                System.err.println("CSCClinet.stop()->\n" + e.toString());
+                System.err.println("TSCClinet.stop()->\n" + e.toString());
             }
         if (manager != null)
         {

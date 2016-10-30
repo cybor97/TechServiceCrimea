@@ -165,7 +165,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         updateDisplayData();
     }
 
-    private void updateDisplayData()
+    public void updateDisplayData()
     {
         DefaultTableModel model = (DefaultTableModel) (table.getModel());
         model.getDataVector().clear();
