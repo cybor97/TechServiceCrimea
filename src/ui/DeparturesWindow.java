@@ -1,28 +1,49 @@
 package ui;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+
+import data.DBHolder;
+import data.Departure;
+import utils.Utils;
+
+import static data.DBHolder.NO_ID;
 import static utils.Utils.dateFormatter;
 
-public class DeparturesWindow extends JFrame implements ActionListener, DocumentListener
+public class DeparturesWindow extends JFrame implements ActionListener, DocumentListener, ListSelectionListener
 {
     private static final DeparturesWindow instance = new DeparturesWindow();
     private final JTable table;
     private final JTextArea dateArea;
     private final JTextArea durationArea;
+    private final JTextArea addressArea;
     private final JTextArea resultArea;
-    private final JTextArea commentArea;
     private final Button addButton;
     private final Button editButton;
     private final Button removeButton;
     private final Button updateButton;
+    private java.util.List<Departure> departures;
 
     private DeparturesWindow()
     {
@@ -35,7 +56,18 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         JPanel tablePanel = new JPanel(new BorderLayout());
-        table = new JTable(new String[][]{}, new String[]{"Дата", "Длительность", "Результат", "Комментрий"});
+        table = new JTable(new DefaultTableModel(new String[][]{}, new String[]{"Дата", "Длительность", "Адрес", "Результат"})
+        {
+            private static final long serialVersionUID = 1L;
+
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        });
+        table.getSelectionModel().addListSelectionListener(this);
+        table.setCellSelectionEnabled(false);
+
         tablePanel.add(table, BorderLayout.CENTER);
         tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
 
@@ -57,6 +89,14 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         durationPanel.add(durationArea);
         bottomPanel.add(durationPanel);
 
+        JPanel addressPanel = new JPanel(new GridLayout(0, 1));
+        addressPanel.add(new Label("Адрес"));
+        addressArea = new JTextArea();
+        addressArea.setBorder(new NodeBorder(Color.gray));
+        addressArea.getDocument().addDocumentListener(this);
+        addressPanel.add(addressArea);
+        bottomPanel.add(addressPanel);
+
         JPanel resultPanel = new JPanel(new GridLayout(0, 1));
         resultPanel.add(new Label("Результат"));
         resultArea = new JTextArea();
@@ -64,15 +104,6 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         resultArea.getDocument().addDocumentListener(this);
         resultPanel.add(resultArea);
         bottomPanel.add(resultPanel);
-
-        JPanel commentPanel = new JPanel(new GridLayout(0, 1));
-        commentPanel.add(new Label("Комментарий"));
-        commentArea = new JTextArea();
-        commentArea.setBorder(new NodeBorder(Color.gray));
-        commentArea.getDocument().addDocumentListener(this);
-        commentPanel.add(commentArea);
-        bottomPanel.add(commentPanel);
-
 
         JPanel buttonsPanel = new JPanel(new GridLayout(2, 2));
         addButton = new Button("Добавить");
@@ -106,15 +137,49 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         return instance;
     }
 
-    private void updateDisplayData()
-    {
-
-    }
-
     @Override
     public void actionPerformed(ActionEvent e)
     {
+        Object source = e.getSource();
+        if (source == addButton)
+            DBHolder.getInstance().addDeparture(new Departure(NO_ID,
+                    DateTime.parse(dateArea.getText(), Utils.dateFormatter),
+                    Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration(),
+                    addressArea.getText(),
+                    resultArea.getText()));
+        else if (source == editButton)
+        {
+            int row = table.getSelectedRow();
+            if (row > -1 && row < table.getRowCount())
+            {
+                Departure departure = departures.get(row);
+                departure.setDate(DateTime.parse(dateArea.getText(), dateFormatter));
+                departure.setDuration(Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration());
+                departure.setAddress(addressArea.getText());
+                departure.setResult(resultArea.getText());
+                DBHolder.getInstance().setDeparture(departure);
+            }
 
+        } else if (source == removeButton)
+            DBHolder.getInstance().removeDeparture(departures.get(table.getSelectedRow()));
+        updateDisplayData();
+    }
+
+    private void updateDisplayData()
+    {
+        DefaultTableModel model = (DefaultTableModel) (table.getModel());
+        model.getDataVector().clear();
+        departures = DBHolder.getInstance().getDepartures();
+        for (Departure current : departures)
+        {
+            Vector<String> row = new Vector<>();
+            row.add(current.getDate().toString(dateFormatter));
+            row.add(current.getDuration().toPeriod().toString(Utils.periodFormatter));
+            row.add(current.getAddress());
+            row.add(current.getResult());
+            model.addRow(row);
+        }
+        model.fireTableDataChanged();
     }
 
     @Override
@@ -149,7 +214,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         try
         {
             return DateTime.parse(dateArea.getText(), dateFormatter) != null &&
-                    Double.parseDouble(durationArea.getText()) > 0;
+                    Period.parse(durationArea.getText(), Utils.periodFormatter) != null;
         } catch (NumberFormatException e)
         {
             return false;
@@ -159,4 +224,19 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         }
     }
 
+    @Override
+    public void valueChanged(ListSelectionEvent e)
+    {
+        setButtons();
+        int row = table.getSelectedRow();
+        if (row > -1 && row < table.getRowCount())
+        {
+            Departure departure = departures.get(row);
+            dateArea.setText(departure.getDate().toString(Utils.dateFormatter));
+            durationArea.setText(departure.getDuration().toPeriod().toString(Utils.periodFormatter));
+            addressArea.setText(departure.getAddress());
+            resultArea.setText(departure.getResult());
+        }
+
+    }
 }

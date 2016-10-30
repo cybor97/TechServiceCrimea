@@ -1,24 +1,38 @@
 package ui;
 
-import data.Call;
-import data.DBHolder;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.Period;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+
+import data.Call;
+import data.DBHolder;
+import utils.Utils;
+
 import static data.DBHolder.NO_ID;
 import static utils.Utils.dateFormatter;
+import static utils.Utils.periodFormatter;
 
 public class CallsWindow extends JFrame implements ActionListener, DocumentListener, ListSelectionListener
 {
@@ -49,7 +63,15 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         JPanel tablePanel = new JPanel(new BorderLayout());
-        table = new JTable(new DefaultTableModel(new String[][]{}, new String[]{"Тип", "Дата", "Длительность", "Номер", "Комментрий"}));
+        table = new JTable(new DefaultTableModel(new String[][]{}, new String[]{"Тип", "Дата", "Длительность", "Номер", "Комментрий"}))
+        {
+            private static final long serialVersionUID = 1L;
+
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
         table.getSelectionModel().addListSelectionListener(this);
         table.setCellSelectionEnabled(false);
         tablePanel.add(table, BorderLayout.CENTER);
@@ -135,11 +157,24 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         if (source == addButton)
             DBHolder.getInstance().addCall(new Call(NO_ID,
                     DateTime.parse(dateArea.getText(), dateFormatter),
-                    Duration.standardMinutes(Long.parseLong(durationArea.getText())),
+                    Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration(),
                     typeCB.getSelectedIndex() == 0,
                     Long.parseLong(numberArea.getText()),
                     commentArea.getText()));
-        else if (source == removeButton)
+        else if (source == editButton)
+        {
+            int row = table.getSelectedRow();
+            if (row > -1 && row < table.getRowCount())
+            {
+                Call call = calls.get(row);
+                call.setDate(DateTime.parse(dateArea.getText(), dateFormatter));
+                call.setDuration(Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration());
+                call.setIncoming(typeCB.getSelectedIndex() == 0);
+                call.setPhoneNumber(Long.parseLong(numberArea.getText()));
+                call.setComment(commentArea.getText());
+                DBHolder.getInstance().setCall(call);
+            }
+        } else if (source == removeButton)
             DBHolder.getInstance().removeCall(calls.get(table.getSelectedRow()));
         updateDisplayData();
     }
@@ -154,11 +189,12 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
             Vector<String> row = new Vector<>();
             row.add(current.isIncoming() ? "Входящий" : "Исходящий");
             row.add(current.getDate().toString(dateFormatter));
-            row.add(current.getDuration().getStandardMinutes() + " минут.");
+            row.add(current.getDuration().toPeriod().toString(Utils.periodFormatter));
             row.add("+" + current.getPhoneNumber());
             row.add(current.getComment());
             model.addRow(row);
         }
+        model.fireTableDataChanged();
     }
 
     @Override
@@ -194,7 +230,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         {
             long phoneNumber = Long.parseLong(numberArea.getText());
             return DateTime.parse(dateArea.getText(), dateFormatter) != null &&
-                    Long.parseLong(durationArea.getText()) > 0 &&
+                    Period.parse(durationArea.getText(), periodFormatter) != null &&
                     phoneNumber > Long.parseLong("10000000000") &&
                     phoneNumber < Long.parseLong("99999999999");
         } catch (NumberFormatException e)
@@ -213,11 +249,13 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         int row = table.getSelectedRow();
         if (row > -1 && row < table.getRowCount())
         {
-            typeCB.setSelectedIndex(table.getValueAt(row, 0).toString().equals("Входящий") ? 0 : 1);
-            dateArea.setText(table.getValueAt(row, 1).toString());
-            durationArea.setText(table.getValueAt(row, 2).toString());
-            numberArea.setText(table.getValueAt(row, 3).toString());
-            commentArea.setText(table.getValueAt(row, 4).toString());
+            Call call = calls.get(row);
+            typeCB.setSelectedIndex(call.isIncoming() ? 0 : 1);
+            dateArea.setText(call.getDate().toString(Utils.dateFormatter));
+            durationArea.setText(call.getDuration().toPeriod().toString(Utils.periodFormatter));
+            numberArea.setText(Long.toString(call.getPhoneNumber()));
+            commentArea.setText(call.getComment());
         }
     }
+
 }

@@ -3,7 +3,13 @@ package data;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +102,7 @@ public class DBHolder
                         new DateTime(results.getLong(DATE)),
                         new Duration(results.getLong(DURATION)),
                         results.getString(ADDRESS),
-                        results.getString(COMMENT)));
+                        results.getString(RESULT)));
             statement.close();
             return result;
         } catch (SQLException e)
@@ -112,14 +118,14 @@ public class DBHolder
     {
         try
         {
-            Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (NULL, %2s, %3s, %4s, %5s,'%6s');",
-                    CALLS,
-                    call.getDate().getMillis(),
-                    call.getDuration().getMillis(),
-                    call.isIncoming() ? 1 : 0,
-                    call.getPhoneNumber(),
-                    call.getComment()));
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO " + CALLS + " VALUES(?, ?, ?, ?, ?, ?)");
+            statement.setNull(1, Types.ROWID);
+            statement.setLong(2, call.getDate().getMillis());
+            statement.setLong(3, call.getDuration().getMillis());
+            statement.setInt(4, call.isIncoming() ? 1 : 0);
+            statement.setLong(5, call.getPhoneNumber());
+            statement.setString(6, call.getComment());
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException e)
         {
@@ -131,13 +137,13 @@ public class DBHolder
     {
         try
         {
-            Statement statement = connection.createStatement();
-            statement.execute(String.format("INSERT INTO %1s VALUES (NULL, %2s, %3s, '%4s', '%5s');",
-                    DEPARTURES,
-                    departure.getDate().getMillis(),
-                    departure.getDuration().getMillis(),
-                    departure.getAddress(),
-                    departure.getResult()));
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO " + DEPARTURES + " VALUES (?, ?, ?, ?, ?);");
+            statement.setNull(1, Types.ROWID);
+            statement.setLong(2, departure.getDate().getMillis());
+            statement.setLong(3, departure.getDuration().getMillis());
+            statement.setString(4, departure.getAddress());
+            statement.setString(5, departure.getResult());
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException e)
         {
@@ -151,28 +157,21 @@ public class DBHolder
     {
         try
         {
-            Statement statement = connection.createStatement();
-            statement.execute(String.format("UPDATE %1s " +
-                            "SET %2s=%3s, %4s=%5s, %6s=%7s, %8s=%9s, %10s='%11s'" +
-                            "WHERE ID = %12s;",
-                    CALLS,
+            PreparedStatement statement = connection.prepareStatement("UPDATE " + CALLS + " SET " +
+                    DATE + "=?," +
+                    DURATION + "=?," +
+                    INCOMING + "=?," +
+                    PHONE_NUMBER + "=?," +
+                    COMMENT + "=?" +
+                    " WHERE " + ID + " =?;");
 
-                    DATE,
-                    call.getDate().getMillis(),
-
-                    DURATION,
-                    call.getDuration().getMillis(),
-
-                    INCOMING,
-                    call.isIncoming() ? 1 : 0,
-
-                    PHONE_NUMBER,
-                    call.getPhoneNumber(),
-
-                    COMMENT,
-                    call.getComment(),
-
-                    call.getId()));
+            statement.setLong(1, call.getDate().getMillis());
+            statement.setLong(2, call.getDuration().getMillis());
+            statement.setInt(3, call.isIncoming() ? 1 : 0);
+            statement.setLong(4, call.getPhoneNumber());
+            statement.setString(5, call.getComment());
+            statement.setLong(6, call.getId());
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException e)
         {
@@ -184,25 +183,19 @@ public class DBHolder
     {
         try
         {
-            Statement statement = connection.createStatement();
-            statement.execute(String.format("UPDATE %1s " +
-                            "SET %2s=%3s, %4s=%5s, %6s='%7s', %8s='%9s'" +
-                            "WHERE ID = %10s;",
-                    DEPARTURES,
+            PreparedStatement statement = connection.prepareStatement("UPDATE " + DEPARTURES + " SET " +
+                    DATE + "=?," +
+                    DURATION + "=?," +
+                    ADDRESS + "=?," +
+                    RESULT + "=?" +
+                    " WHERE " + ID + " =?;");
 
-                    DATE,
-                    departure.getDate().getMillis(),
-
-                    DURATION,
-                    departure.getDuration().getMillis(),
-
-                    ADDRESS,
-                    departure.getAddress(),
-
-                    RESULT,
-                    departure.getResult(),
-
-                    departure.getId()));
+            statement.setLong(1, departure.getDate().getMillis());
+            statement.setLong(2, departure.getDuration().getMillis());
+            statement.setString(3, departure.getAddress());
+            statement.setString(4, departure.getResult());
+            statement.setLong(5, departure.getId());
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException e)
         {
@@ -227,7 +220,7 @@ public class DBHolder
         try
         {
             Statement statement = connection.createStatement();
-            statement.execute(String.format("DELETE FROM %1s WHERE %2s = %3d", CALLS, ID, id));
+            statement.execute(String.format("DELETE FROM %1s WHERE %2s = %3d", tableName, ID, id));
             statement.close();
         } catch (SQLException e)
         {

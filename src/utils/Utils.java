@@ -2,6 +2,8 @@ package utils;
 
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 public class Utils
 {
@@ -12,5 +14,10 @@ public class Utils
             .appendLiteral('.')
             .appendYear(4, 4)
             .toFormatter();
-
+    public static final PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+            .printZeroAlways()
+            .appendHours()
+            .appendLiteral(":")
+            .appendMinutes()
+            .toFormatter();
 }
