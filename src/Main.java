@@ -12,6 +12,7 @@ class Main implements TSCServer.OnClientAcceptedListener, TSCClient.OnRequestAcc
     {
         try
         {
+            TSCServer.getInstance().start();
             new MainWindow();
         } catch (Exception e)
         {

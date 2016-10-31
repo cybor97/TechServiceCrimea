@@ -24,14 +24,19 @@ public class TSCClient implements Runnable
     {
         String result = "";
         String tmp;
-        while (!reader.ready() && !(tmp = reader.readLine()).equals("---END---"))
-            result += tmp;
+        if (reader.ready())
+        {
+            while ((tmp = reader.readLine()) != null && !tmp.equals("---END---"))
+                result += tmp;
+            while (reader.read() != -1) ;//FIXME:Reading session ends with no data in second case.
+        }
         return result.replace("\\n", "\n");
     }
 
     private static void writeWithEndBlock(OutputStreamWriter writer, String text) throws IOException
     {
         writer.write(String.format("%s\n---END---\n", text.replace("\n", "\\n")));
+        writer.flush();
     }
 
     public boolean isConnected()
