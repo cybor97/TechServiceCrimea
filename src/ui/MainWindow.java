@@ -6,10 +6,14 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
+
+import data_exchange.TSCServer;
 
 public class MainWindow extends JFrame implements ActionListener
 {
@@ -45,6 +49,16 @@ public class MainWindow extends JFrame implements ActionListener
         setVisible(true);
 
         Compiler.compileClass(CallsWindow.class);
+
+        addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                TSCServer.getInstance().stop();
+                dispose();
+            }
+        });
     }
 
     @Override
@@ -60,7 +74,7 @@ public class MainWindow extends JFrame implements ActionListener
             {
                 CallsWindow.getInstance().dispose();
                 DeparturesWindow.getInstance().dispose();
-                dispose();
+                getWindowListeners()[0].windowClosing(null);
             }
     }
 }
