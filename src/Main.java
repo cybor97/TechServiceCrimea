@@ -1,18 +1,16 @@
-import data_exchange.Request;
 import data_exchange.RequestProcessor;
-import data_exchange.TSCClient;
 import data_exchange.TSCServer;
 import ui.CallsWindow;
 import ui.DeparturesWindow;
 import ui.MainWindow;
 
-class Main implements TSCServer.OnClientAcceptedListener, TSCClient.OnRequestAcceptedListener
+class Main
 {
     public static void main(String[] args)
     {
         try
         {
-            TSCServer.getInstance().start();
+            initServer();
             new MainWindow();
         } catch (Exception e)
         {
@@ -20,18 +18,15 @@ class Main implements TSCServer.OnClientAcceptedListener, TSCClient.OnRequestAcc
         }
     }
 
-    @Override
-    public void onClientAccepted(TSCClient client)
+    private static void initServer()
     {
-        client.setOnRequestAcceptedListener(this);
-    }
-
-    @Override
-    public String onRequestAccepted(TSCClient sender, Request request)
-    {
-        String result = RequestProcessor.process(request).toXML();
-        CallsWindow.getInstance().updateDisplayData();
-        DeparturesWindow.getInstance().updateDisplayData();
-        return result;
+        TSCServer.getInstance().setOnClientAcceptedListener(client -> client.setOnRequestAcceptedListener((sender, request) ->
+        {
+            String result = RequestProcessor.process(request).toXML();
+            CallsWindow.getInstance().updateDisplayData();
+            DeparturesWindow.getInstance().updateDisplayData();
+            return result;
+        }));
+        TSCServer.getInstance().start();
     }
 }
