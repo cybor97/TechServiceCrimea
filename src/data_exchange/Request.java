@@ -18,7 +18,7 @@ public class Request
     public static Request parse(String xml)
     {
         Request result = new Request();
-        if (xml != null && xml.isEmpty())
+        if (xml != null && !xml.isEmpty())
             try
             {
                 Element element = DocumentBuilderFactory
