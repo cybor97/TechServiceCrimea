@@ -1,6 +1,7 @@
 package data_exchange;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -11,7 +12,7 @@ public class TSCClient implements Runnable
     private Socket client;
     private Thread manager;
     private BufferedReader reader;
-    private OutputStreamWriter writer;
+    private BufferedWriter writer;
     private String hash;
     private OnRequestAcceptedListener onRequestAcceptedListener;
 
@@ -24,16 +25,13 @@ public class TSCClient implements Runnable
     {
         String result = "";
         String tmp;
-        if (reader.ready())
-        {
-            while ((tmp = reader.readLine()) != null && !tmp.equals("---END---"))
-                result += tmp;
-            while (reader.read() != -1) ;//FIXME:Reading session ends with no data in second case.
-        }
+        while (!reader.ready()) ;
+        while ((tmp = reader.readLine()) != null && !tmp.equals("---END---"))
+            result += tmp;
         return result.replace("\\n", "\n");
     }
 
-    private static void writeWithEndBlock(OutputStreamWriter writer, String text) throws IOException
+    private static void writeWithEndBlock(BufferedWriter writer, String text) throws IOException
     {
         writer.write(String.format("%s\n---END---\n", text.replace("\n", "\\n")));
         writer.flush();
@@ -62,7 +60,7 @@ public class TSCClient implements Runnable
             client.setSoLinger(false, 0);
             client.setTcpNoDelay(true);
             reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            writer = new OutputStreamWriter(client.getOutputStream());
+            writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
             do
                 try
                 {
