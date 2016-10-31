@@ -13,6 +13,9 @@ import javax.xml.stream.XMLStreamWriter;
 import data.Call;
 import data.Departure;
 
+import static utils.Utils.techDateFormatter;
+import static utils.Utils.techPeriodFormatter;
+
 public class Response
 {
     private final List<?> data;
@@ -46,8 +49,8 @@ public class Response
                     writer.writeStartElement("Call");
                     writer.writeAttribute("ID", Integer.toString(call.getId()));
                     writer.writeAttribute("Incoming", Boolean.toString(call.isIncoming()));
-                    writer.writeAttribute("Date", call.getDate().toString());
-                    writer.writeAttribute("Duration", call.getDuration().toString());
+                    writer.writeAttribute("Date", call.getDate().toString(techDateFormatter));
+                    writer.writeAttribute("Duration", call.getDuration().toPeriod().toString(techPeriodFormatter));
                     writer.writeAttribute("PhoneNumber", Long.toString(call.getPhoneNumber()));
                     writer.writeCharacters(call.getComment());
                     writer.writeEndElement();
@@ -56,8 +59,8 @@ public class Response
                     Departure departure = (Departure) current;
                     writer.writeStartElement("Departure");
                     writer.writeAttribute("ID", Integer.toString(departure.getId()));
-                    writer.writeAttribute("Date", departure.getDate().toString());
-                    writer.writeAttribute("Duration", departure.getDuration().toString());
+                    writer.writeAttribute("Date", departure.getDate().toString(techDateFormatter));
+                    writer.writeAttribute("Duration", departure.getDuration().toPeriod().toString(techPeriodFormatter));
                     writer.writeAttribute("Address", departure.getAddress());
                     writer.writeAttribute("Result", departure.getResult());
                     writer.writeEndElement();
@@ -68,10 +71,12 @@ public class Response
                     writer.writeEndElement();
                 }
             writer.writeEndElement();
+
+            return new String(stream.toByteArray(), "UTF-8");
         } catch (Exception e)
         {
             System.err.println("Response.toString()->\n" + e.toString());
+            return null;
         }
-        return super.toString();
     }
 }

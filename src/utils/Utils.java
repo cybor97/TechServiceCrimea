@@ -23,6 +23,22 @@ public class Utils
             .appendLiteral(":")
             .appendMinutes()
             .toFormatter();
+    public static final DateTimeFormatter techDateFormatter = new DateTimeFormatterBuilder()
+            .appendMonthOfYear(2)
+            .appendLiteral('/')
+            .appendDayOfMonth(2)
+            .appendLiteral('/')
+            .appendYear(4, 4)
+            .toFormatter();
+    public static final PeriodFormatter techPeriodFormatter = new PeriodFormatterBuilder()
+            .printZeroAlways()
+            .appendHours()
+            .appendLiteral(":")
+            .appendMinutes()
+            .appendLiteral(":")
+            .appendSeconds()
+            .toFormatter();
+
 
     public static String innerXml(Node node)
     {
