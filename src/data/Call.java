@@ -33,6 +33,7 @@ public class Call
         if (xml != null && xml.isEmpty())
             try
             {
+                xml = xml.replaceAll("[^\\x20-\\x7e]", "");
                 Element element = DocumentBuilderFactory
                         .newInstance()
                         .newDocumentBuilder()//Hate JAVA for that!
