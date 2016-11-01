@@ -11,7 +11,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import data_exchange.TSCServer;
 
@@ -28,7 +27,6 @@ public class MainWindow extends JFrame implements ActionListener
         setSize(100, 100);
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((int) (size.getWidth() / 2 - getWidth() / 2), (int) (size.getHeight() / 2 - getHeight() / 2));
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         mainPanel = new JPanel(new GridLayout(0, 1));
 
@@ -55,8 +53,7 @@ public class MainWindow extends JFrame implements ActionListener
             @Override
             public void windowClosing(WindowEvent e)
             {
-                TSCServer.getInstance().stop();
-                dispose();
+                exit();
             }
         });
     }
@@ -74,7 +71,14 @@ public class MainWindow extends JFrame implements ActionListener
             {
                 CallsWindow.getInstance().dispose();
                 DeparturesWindow.getInstance().dispose();
-                getWindowListeners()[0].windowClosing(null);
+                exit();
             }
+    }
+
+    private void exit()
+    {
+        TSCServer.getInstance().stop();
+        dispose();
+        System.exit(0);
     }
 }

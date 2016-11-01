@@ -9,6 +9,9 @@ import java.io.ByteArrayInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import static utils.Utils.techDateFormatter;
+import static utils.Utils.techPeriodFormatter;
+
 public class Call
 {
     private final int id;
@@ -30,19 +33,26 @@ public class Call
 
     public static Call parse(String xml)
     {
-        if (xml != null && xml.isEmpty())
+        if (xml != null && !xml.isEmpty())
             try
             {
-                xml = xml.replaceAll("[^\\x20-\\x7e]", "");
+                xml = xml.replaceAll("[^\\x20-\\x7e]", " ");
                 Element element = DocumentBuilderFactory
                         .newInstance()
                         .newDocumentBuilder()//Hate JAVA for that!
                         .parse(new ByteArrayInputStream(xml.getBytes("UTF-8")))
                         .getDocumentElement();
 
+                String date = element.getAttribute("Date").split(" ")[0];
+                String period = element.getAttribute("Duration");
+                if (period.startsWith(":"))
+                    period = "0" + period;
+                if (period.endsWith(":"))
+                    period = period + "0";
+
                 return new Call(Integer.parseInt(element.getAttribute("ID")),
-                        DateTime.parse(element.getAttribute("Date")),//FIXME: 100% bug with formatting
-                        Period.parse(element.getAttribute("Duration")).toStandardDuration(),//FIXME: 100% bug with formatting
+                        DateTime.parse(date, techDateFormatter),
+                        Period.parse(period, techPeriodFormatter).toStandardDuration(),
                         Boolean.parseBoolean(element.getAttribute("Incoming")),
                         Long.parseLong(element.getAttribute("PhoneNumber")),
                         element.getTextContent());

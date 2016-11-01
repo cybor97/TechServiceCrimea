@@ -73,7 +73,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
             }
         };
         table.getSelectionModel().addListSelectionListener(this);
-        table.setCellSelectionEnabled(false);
+        table.setRowSelectionAllowed(true);
         tablePanel.add(table, BorderLayout.CENTER);
         tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
 
@@ -179,8 +179,9 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         updateDisplayData();
     }
 
-    public void updateDisplayData()
+    public synchronized void updateDisplayData()
     {
+        int selectedRow = table.getSelectedRow();
         DefaultTableModel model = (DefaultTableModel) (table.getModel());
         model.getDataVector().clear();
         calls = DBHolder.getInstance().getCalls();
@@ -195,6 +196,8 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
             model.addRow(row);
         }
         model.fireTableDataChanged();
+        if (selectedRow > -1 && selectedRow < table.getColumnCount() - 1)
+            table.setRowSelectionInterval(selectedRow, selectedRow);
     }
 
     @Override

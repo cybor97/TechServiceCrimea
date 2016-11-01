@@ -42,13 +42,27 @@ public class TSCServer implements Runnable
             cleaner = new Thread(() ->
             {
                 while (!Thread.interrupted())
+                {
                     for (int i = 0; i < clients.size(); i++)
                     {
                         TSCClient client = clients.get(i);
                         if (client == null || !client.isConnected())
+                        {
+                            if (client != null)
+                                client.stop();
                             clients.remove(i);
+                        }
                     }
+                    try
+                    {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e)
+                    {
+
+                    }
+                }
             });
+            cleaner.setPriority(Thread.MIN_PRIORITY);
             cleaner.start();
         }
     }
@@ -83,6 +97,14 @@ public class TSCServer implements Runnable
 
     public void stop()
     {
+        try
+        {
+            if (listener != null)
+                listener.close();
+        } catch (IOException e)
+        {
+            System.err.println("TSCServer.stop()->\n" + e.toString());
+        }
         if (manager != null)
         {
             manager.interrupt();
@@ -95,16 +117,8 @@ public class TSCServer implements Runnable
         }
         if (clients != null)
         {
+            clients.forEach(TSCClient::stop);
             clients.clear();
-            clients = null;
-        }
-        try
-        {
-            if (listener != null)
-                listener.close();
-        } catch (IOException e)
-        {
-            System.err.println("TSCServer.stop()->\n" + e.toString());
         }
     }
 

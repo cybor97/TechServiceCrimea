@@ -9,6 +9,9 @@ import java.io.ByteArrayInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import static utils.Utils.techDateFormatter;
+import static utils.Utils.techPeriodFormatter;
+
 public class Departure
 {
     private final int id;
@@ -38,11 +41,18 @@ public class Departure
                         .parse(new ByteArrayInputStream(xml.getBytes("UTF-8")))
                         .getDocumentElement();
 
+                String date = element.getAttribute("Date").split(" ")[0];
+                String period = element.getAttribute("Duration");
+                if (period.startsWith(":"))
+                    period = "0" + period;
+                if (period.endsWith(":"))
+                    period = period + "0";
+
                 return new Departure(Integer.parseInt(element.getAttribute("ID")),
-                        DateTime.parse(element.getAttribute("Date")),//FIXME: 100% bug with formatting
-                        Period.parse(element.getAttribute("Duration")).toStandardDuration(),//FIXME: 100% bug with formatting
-                        element.getAttribute("Incoming"),
-                        element.getAttribute("PhoneNumber"));
+                        DateTime.parse(date, techDateFormatter),
+                        Period.parse(period, techPeriodFormatter).toStandardDuration(),
+                        element.getAttribute("Address"),
+                        element.getAttribute("Result"));
             } catch (Exception e)
             {
                 System.err.println("Request.parse()->\n" + e.toString());

@@ -61,7 +61,7 @@ public class Utils
         {
             for (int i = 0; i < attributes.getLength(); i++)
             {
-                s += attributes.item(i).getNodeName() + "=\"" + attributes.item(i).getNodeValue() + "\"";
+                s += attributes.item(i).getNodeName() + "=\"" + attributes.item(i).getNodeValue() + "\" ";
             }
         }
         NodeList childs = node.getChildNodes();

@@ -25,8 +25,15 @@ public class TSCClient implements Runnable
     {
         String result = "";
         String tmp;
-        while (!reader.ready()) ;
-        while ((tmp = reader.readLine()) != null && !tmp.equals("---END---"))
+        while (!Thread.interrupted() && !reader.ready())
+            try
+            {
+                Thread.sleep(10);
+            } catch (Exception e)
+            {
+
+            }
+        while (!Thread.interrupted() && (tmp = reader.readLine()) != null && !tmp.equals("---END---"))
             result += tmp;
         return result.replace("\\n", "\n");
     }
