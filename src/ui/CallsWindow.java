@@ -95,7 +95,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         bottomPanel.add(datePanel);
 
         JPanel durationPanel = new JPanel(new GridLayout(0, 1));
-        durationPanel.add(new Label("Длительность(минут)"));
+        durationPanel.add(new Label("Длительность"));
         durationArea = new JTextArea();
         durationArea.setBorder(new NodeBorder(Color.gray));
         durationArea.getDocument().addDocumentListener(this);
