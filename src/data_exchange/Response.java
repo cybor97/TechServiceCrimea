@@ -75,7 +75,7 @@ public class Response
             return new String(stream.toByteArray(), "UTF-8");
         } catch (Exception e)
         {
-            System.err.println("Response.toString()->\n" + e.toString());
+            System.err.println("Response.toXML()->\n" + e.toString());
             return null;
         }
     }
