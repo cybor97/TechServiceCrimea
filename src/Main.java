@@ -1,3 +1,4 @@
+import data.DBHolder;
 import data_exchange.RequestProcessor;
 import data_exchange.TSCServer;
 import ui.CallsWindow;
@@ -11,6 +12,7 @@ class Main
         try
         {
             initServer();
+            DBHolder.getInstance();
             new MainWindow();
         } catch (Exception e)
         {

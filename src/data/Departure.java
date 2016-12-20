@@ -1,5 +1,6 @@
 package data;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
@@ -7,18 +8,26 @@ import org.w3c.dom.Element;
 
 import java.io.ByteArrayInputStream;
 
+import javax.persistence.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import static utils.Utils.techDateFormatter;
 import static utils.Utils.techPeriodFormatter;
 
+@Entity
+@Table
 public class Departure
 {
-    private final int id;
+    private int id;
     private DateTime date;
     private Duration duration;
     private String address;
     private String result;
+
+    public Departure()
+    {
+
+    }
 
     public Departure(int id, DateTime date, Duration duration, String address, String result)
     {
@@ -60,11 +69,20 @@ public class Departure
         return null;
     }
 
+    @Id
+    @GeneratedValue
+    @Column(unique = true, nullable = false)
     public int getId()
     {
         return id;
     }
 
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     public DateTime getDate()
     {
         return date;
@@ -75,6 +93,7 @@ public class Departure
         this.date = date;
     }
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDurationAsString")
     public Duration getDuration()
     {
         return duration;

@@ -1,5 +1,6 @@
 package data;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
@@ -7,19 +8,27 @@ import org.w3c.dom.Element;
 
 import java.io.ByteArrayInputStream;
 
+import javax.persistence.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import static utils.Utils.techDateFormatter;
 import static utils.Utils.techPeriodFormatter;
 
+@Entity
+@Table
 public class Call
 {
-    private final int id;
+    private int id;
     private DateTime date;
     private Duration duration;
     private boolean incoming;
     private long phoneNumber;
     private String comment;
+
+
+    public Call()
+    {
+    }
 
     public Call(int id, DateTime date, Duration duration, boolean incoming, long phoneNumber, String comment)
     {
@@ -63,11 +72,20 @@ public class Call
         return null;
     }
 
+    @Id
+    @GeneratedValue
+    @Column(unique = true, nullable = false)
     public int getId()
     {
         return id;
     }
 
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     public DateTime getDate()
     {
         return date;
@@ -78,6 +96,7 @@ public class Call
         this.date = date;
     }
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDurationAsString")
     public Duration getDuration()
     {
         return duration;
