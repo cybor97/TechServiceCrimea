@@ -2,9 +2,8 @@ package data_exchange;
 
 import org.w3c.dom.Element;
 
-import java.io.ByteArrayInputStream;
-
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 
 import static utils.Utils.innerXml;
 
@@ -15,7 +14,7 @@ public class Request
     private String by;
     private String data;
 
-    public static Request parse(String xml)
+    static Request parse(String xml)
     {
         Request result = new Request();
         if (xml != null && !xml.isEmpty())
@@ -39,20 +38,20 @@ public class Request
         return result;
     }
 
-    public String getType()
+    String getType()
     {
         return type;
     }
 
-    public String in()
+    String in()
     {
         return in;
     }
 
-    public String by()
-    {
-        return by;
-    }
+//    public String by()
+//    {
+//        return by;
+//    }
 
     public String getData()
     {

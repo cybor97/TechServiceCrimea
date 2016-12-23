@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.WARNING;
 
 public class TSCServer implements Runnable
 {
@@ -58,7 +61,7 @@ public class TSCServer implements Runnable
                         Thread.sleep(100);
                     } catch (InterruptedException e)
                     {
-
+                        Logger.getGlobal().log(WARNING, "Interrupted while sleeping.");
                     }
                 }
             });
@@ -117,7 +120,8 @@ public class TSCServer implements Runnable
         }
         if (clients != null)
         {
-            clients.forEach(TSCClient::stop);
+            for (TSCClient current : clients)
+                current.stop();
             clients.clear();
         }
     }

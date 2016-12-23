@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 
 public class DBHolder
@@ -24,6 +23,7 @@ public class DBHolder
         session = configuration.buildSessionFactory().openSession();
     }
 
+
     public static DBHolder getInstance()
     {
         if (instance == null)
@@ -36,48 +36,48 @@ public class DBHolder
     //region GET
     public List<Call> getCalls()
     {
-        return session.createQuery("from Call ", Call.class).list();
+        return session.createQuery("from Call ", Call.class).getResultList();
     }
 
     public List<Departure> getDepartures()
     {
-        return session.createQuery("from Departure ", Departure.class).list();
+        return session.createQuery("from Departure ", Departure.class).getResultList();
     }
 
     //endregion
     //region ADD
-    public void addCall(Call call)
+    public void addCall(final Call call)
     {
         executeTransaction(() -> session.save(call));
     }
 
-    public void addDeparture(Departure departure)
+    public void addDeparture(final Departure departure)
     {
         executeTransaction(() -> session.save(departure));
     }
 
     //endregion
     //region SET
-    public void setCall(Call call)
+    public void setCall(final Call call)
     {
         executeTransaction(() -> session.update(call));
     }
 
-    public void setDeparture(Departure departure)
+    public void setDeparture(final Departure departure)
     {
         executeTransaction(() -> session.update(departure));
     }
 
     //endregion
     //region REMOVE
-    public void removeCall(Call call)
+    public void removeCall(final Call call)
     {
-        executeTransaction(() -> session.remove(call));
+        executeTransaction(() -> session.delete(call));
     }
 
-    public void removeDeparture(Departure departure)
+    public void removeDeparture(final Departure departure)
     {
-        executeTransaction(() -> session.remove(departure));
+        executeTransaction(() -> session.delete(departure));
     }
 
     //endregion

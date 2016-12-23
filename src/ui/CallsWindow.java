@@ -1,34 +1,21 @@
 package ui;
 
+import data.Call;
+import data.DBHolder;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Vector;
-
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import data.Call;
-import data.DBHolder;
-import utils.Utils;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Vector;
 
 import static data.DBHolder.NO_ID;
 import static utils.Utils.dateFormatter;
@@ -43,10 +30,10 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
     private final JTextArea durationArea;
     private final JTextArea numberArea;
     private final JTextArea commentArea;
-    private final Button addButton;
-    private final Button editButton;
-    private final Button removeButton;
-    private final Button updateButton;
+    private final JButton addButton;
+    private final JButton editButton;
+    private final JButton removeButton;
+    private final JButton updateButton;
     private java.util.List<Call> calls;
 
     private CallsWindow()
@@ -56,7 +43,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         calls = new ArrayList<>();
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(800, 500);
+        setSize(1100, 600);
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((int) (size.getWidth() / 2 - getWidth() / 2), (int) (size.getHeight() / 2 - getHeight() / 2));
 
@@ -80,14 +67,14 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         JPanel bottomPanel = new JPanel(new GridLayout(1, 0));
 
         JPanel typePanel = new JPanel(new GridLayout(0, 1));
-        typePanel.add(new Label("Тип"));
+        typePanel.add(new JLabel("Тип"));
         typeCB = new JComboBox<>(new String[]{"Входящий", "Исходящий"});
         typeCB.setBorder(new NodeBorder(Color.gray));
         typePanel.add(typeCB);
         bottomPanel.add(typePanel);
 
         JPanel datePanel = new JPanel(new GridLayout(0, 1));
-        datePanel.add(new Label("Дата"));
+        datePanel.add(new JLabel("Дата"));
         dateArea = new JTextArea();
         dateArea.setBorder(new NodeBorder(Color.gray));
         dateArea.getDocument().addDocumentListener(this);
@@ -95,7 +82,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         bottomPanel.add(datePanel);
 
         JPanel durationPanel = new JPanel(new GridLayout(0, 1));
-        durationPanel.add(new Label("Длительность"));
+        durationPanel.add(new JLabel("Длительность"));
         durationArea = new JTextArea();
         durationArea.setBorder(new NodeBorder(Color.gray));
         durationArea.getDocument().addDocumentListener(this);
@@ -103,7 +90,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         bottomPanel.add(durationPanel);
 
         JPanel numberPanel = new JPanel(new GridLayout(0, 1));
-        numberPanel.add(new Label("Номер"));
+        numberPanel.add(new JLabel("Номер"));
         numberArea = new JTextArea();
         numberArea.setBorder(new NodeBorder(Color.gray));
         numberArea.getDocument().addDocumentListener(this);
@@ -111,27 +98,27 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         bottomPanel.add(numberPanel);
 
         JPanel commentPanel = new JPanel(new GridLayout(0, 1));
-        commentPanel.add(new Label("Комментарий"));
+        commentPanel.add(new JLabel("Комментарий"));
         commentArea = new JTextArea();
         commentArea.setBorder(new NodeBorder(Color.gray));
         commentArea.getDocument().addDocumentListener(this);
         commentPanel.add(commentArea);
         bottomPanel.add(commentPanel);
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(2, 2));
-        addButton = new Button("Добавить");
+        JPanel JButtonsPanel = new JPanel(new GridLayout(2, 2));
+        addButton = new JButton("Добавить");
         addButton.addActionListener(this);
-        buttonsPanel.add(addButton);
-        updateButton = new Button("Обновить");
+        JButtonsPanel.add(addButton);
+        updateButton = new JButton("Обновить");
         updateButton.addActionListener(this);
-        buttonsPanel.add(updateButton);
-        editButton = new Button("Изменить");
+        JButtonsPanel.add(updateButton);
+        editButton = new JButton("Изменить");
         editButton.addActionListener(this);
-        buttonsPanel.add(editButton);
-        removeButton = new Button("Удалить");
+        JButtonsPanel.add(editButton);
+        removeButton = new JButton("Удалить");
         removeButton.addActionListener(this);
-        buttonsPanel.add(removeButton);
-        bottomPanel.add(buttonsPanel);
+        JButtonsPanel.add(removeButton);
+        bottomPanel.add(JButtonsPanel);
 
         mainPanel.add(tablePanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -157,7 +144,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         if (source == addButton)
             DBHolder.getInstance().addCall(new Call(NO_ID,
                     DateTime.parse(dateArea.getText(), dateFormatter),
-                    Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration(),
+                    Period.parse(durationArea.getText(), periodFormatter).toStandardDuration(),
                     typeCB.getSelectedIndex() == 0,
                     Long.parseLong(numberArea.getText()),
                     commentArea.getText()));
@@ -168,7 +155,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
             {
                 Call call = calls.get(row);
                 call.setDate(DateTime.parse(dateArea.getText(), dateFormatter));
-                call.setDuration(Period.parse(durationArea.getText(), Utils.periodFormatter).toStandardDuration());
+                call.setDuration(Period.parse(durationArea.getText(), periodFormatter).toStandardDuration());
                 call.setIncoming(typeCB.getSelectedIndex() == 0);
                 call.setPhoneNumber(Long.parseLong(numberArea.getText()));
                 call.setComment(commentArea.getText());
@@ -190,7 +177,7 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
             Vector<String> row = new Vector<>();
             row.add(current.isIncoming() ? "Входящий" : "Исходящий");
             row.add(current.getDate().toString(dateFormatter));
-            row.add(current.getDuration().toPeriod().toString(Utils.periodFormatter));
+            row.add(current.getDuration().toPeriod().toString(periodFormatter));
             row.add("+" + current.getPhoneNumber());
             row.add(current.getComment());
             model.addRow(row);
@@ -236,9 +223,6 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
                     Period.parse(durationArea.getText(), periodFormatter) != null &&
                     phoneNumber > Long.parseLong("10000000000") &&
                     phoneNumber < Long.parseLong("99999999999");
-        } catch (NumberFormatException e)
-        {
-            return false;
         } catch (IllegalArgumentException e)
         {
             return false;
@@ -254,8 +238,8 @@ public class CallsWindow extends JFrame implements ActionListener, DocumentListe
         {
             Call call = calls.get(row);
             typeCB.setSelectedIndex(call.isIncoming() ? 0 : 1);
-            dateArea.setText(call.getDate().toString(Utils.dateFormatter));
-            durationArea.setText(call.getDuration().toPeriod().toString(Utils.periodFormatter));
+            dateArea.setText(call.getDate().toString(dateFormatter));
+            durationArea.setText(call.getDuration().toPeriod().toString(periodFormatter));
             numberArea.setText(Long.toString(call.getPhoneNumber()));
             commentArea.setText(call.getComment());
         }

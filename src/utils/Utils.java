@@ -8,8 +8,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.swing.*;
+
 public class Utils
 {
+    //region DateTime formatters
     public static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
             .appendDayOfMonth(2)
             .appendLiteral('.')
@@ -39,7 +42,8 @@ public class Utils
             .appendSeconds()
             .toFormatter();
 
-
+    //endregion
+    //region XML utils
     public static String innerXml(Node node)
     {
         String s = "";
@@ -77,4 +81,13 @@ public class Utils
         return s;
     }
 
+    //endregion
+    public static void setButtons(Validator validator, JTable table, JButton addButton, JButton editButton, JButton removeButton)
+    {
+        boolean validated = validator.validateValue();
+        boolean rowSelected = table.getSelectedRow() > -1;
+        addButton.setEnabled(validated);
+        editButton.setEnabled(validated && rowSelected);
+        removeButton.setEnabled(rowSelected);
+    }
 }

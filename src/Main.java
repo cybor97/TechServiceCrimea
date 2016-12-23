@@ -5,6 +5,9 @@ import ui.CallsWindow;
 import ui.DeparturesWindow;
 import ui.MainWindow;
 
+import javax.swing.*;
+
+
 class Main
 {
     public static void main(String[] args)
@@ -13,6 +16,9 @@ class Main
         {
             initServer();
             DBHolder.getInstance();
+            for (UIManager.LookAndFeelInfo current : UIManager.getInstalledLookAndFeels())
+                if (current.getName().equals("Nimbus"))
+                    UIManager.setLookAndFeel(current.getClassName());
             new MainWindow();
         } catch (Exception e)
         {
@@ -22,13 +28,15 @@ class Main
 
     private static void initServer()
     {
-        TSCServer.getInstance().setOnClientAcceptedListener(client -> client.setOnRequestAcceptedListener((sender, request) ->
-        {
-            String result = RequestProcessor.process(request).toXML();
-            CallsWindow.getInstance().updateDisplayData();
-            DeparturesWindow.getInstance().updateDisplayData();
-            return result;
-        }));
+        TSCServer
+                .getInstance()
+                .setOnClientAcceptedListener(client -> client.setOnRequestAcceptedListener((sender, request) ->
+                {
+                    String result = RequestProcessor.process(request).toXML();
+                    CallsWindow.getInstance().updateDisplayData();
+                    DeparturesWindow.getInstance().updateDisplayData();
+                    return result;
+                }));
         TSCServer.getInstance().start();
     }
 }

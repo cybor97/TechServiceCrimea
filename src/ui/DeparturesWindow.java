@@ -1,37 +1,28 @@
 package ui;
 
+import data.DBHolder;
+import data.Departure;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import utils.Utils;
+import utils.Validator;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Vector;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import data.DBHolder;
-import data.Departure;
-import utils.Utils;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import static data.DBHolder.NO_ID;
 import static utils.Utils.dateFormatter;
+import static utils.Utils.setButtons;
 
-public class DeparturesWindow extends JFrame implements ActionListener, DocumentListener, ListSelectionListener
+public class DeparturesWindow extends JFrame implements ActionListener, DocumentListener, ListSelectionListener, Validator
 {
     private static final DeparturesWindow instance = new DeparturesWindow();
     private final JTable table;
@@ -39,17 +30,17 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
     private final JTextArea durationArea;
     private final JTextArea addressArea;
     private final JTextArea resultArea;
-    private final Button addButton;
-    private final Button editButton;
-    private final Button removeButton;
-    private final Button updateButton;
+    private final JButton addButton;
+    private final JButton editButton;
+    private final JButton removeButton;
+    private final JButton updateJButton;
     private java.util.List<Departure> departures;
 
     private DeparturesWindow()
     {
         super("Выезды");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(800, 500);
+        setSize(1100, 600);
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((int) (size.getWidth() / 2 - getWidth() / 2), (int) (size.getHeight() / 2 - getHeight() / 2));
 
@@ -74,7 +65,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         JPanel bottomPanel = new JPanel(new GridLayout(1, 0));
 
         JPanel datePanel = new JPanel(new GridLayout(0, 1));
-        datePanel.add(new Label("Дата"));
+        datePanel.add(new JLabel("Дата"));
         dateArea = new JTextArea();
         dateArea.setBorder(new NodeBorder(Color.gray));
         dateArea.getDocument().addDocumentListener(this);
@@ -82,7 +73,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         bottomPanel.add(datePanel);
 
         JPanel durationPanel = new JPanel(new GridLayout(0, 1));
-        durationPanel.add(new Label("Длительность"));
+        durationPanel.add(new JLabel("Длительность"));
         durationArea = new JTextArea();
         durationArea.setBorder(new NodeBorder(Color.gray));
         durationArea.getDocument().addDocumentListener(this);
@@ -90,7 +81,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         bottomPanel.add(durationPanel);
 
         JPanel addressPanel = new JPanel(new GridLayout(0, 1));
-        addressPanel.add(new Label("Адрес"));
+        addressPanel.add(new JLabel("Адрес"));
         addressArea = new JTextArea();
         addressArea.setBorder(new NodeBorder(Color.gray));
         addressArea.getDocument().addDocumentListener(this);
@@ -98,30 +89,30 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
         bottomPanel.add(addressPanel);
 
         JPanel resultPanel = new JPanel(new GridLayout(0, 1));
-        resultPanel.add(new Label("Результат"));
+        resultPanel.add(new JLabel("Результат"));
         resultArea = new JTextArea();
         resultArea.setBorder(new NodeBorder(Color.gray));
         resultArea.getDocument().addDocumentListener(this);
         resultPanel.add(resultArea);
         bottomPanel.add(resultPanel);
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(2, 2));
-        addButton = new Button("Добавить");
+        JPanel JButtonsPanel = new JPanel(new GridLayout(2, 2));
+        addButton = new JButton("Добавить");
         addButton.setEnabled(false);
         addButton.addActionListener(this);
-        buttonsPanel.add(addButton);
-        updateButton = new Button("Обновить");
-        updateButton.addActionListener(this);
-        buttonsPanel.add(updateButton);
-        editButton = new Button("Изменить");
+        JButtonsPanel.add(addButton);
+        updateJButton = new JButton("Обновить");
+        updateJButton.addActionListener(this);
+        JButtonsPanel.add(updateJButton);
+        editButton = new JButton("Изменить");
         editButton.setEnabled(false);
         editButton.addActionListener(this);
-        buttonsPanel.add(editButton);
-        removeButton = new Button("Удалить");
+        JButtonsPanel.add(editButton);
+        removeButton = new JButton("Удалить");
         removeButton.setEnabled(false);
         removeButton.addActionListener(this);
-        buttonsPanel.add(removeButton);
-        bottomPanel.add(buttonsPanel);
+        JButtonsPanel.add(removeButton);
+        bottomPanel.add(JButtonsPanel);
 
         mainPanel.add(tablePanel, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -185,39 +176,28 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
     @Override
     public void insertUpdate(DocumentEvent e)
     {
-        setButtons();
+        setButtons(this, table, addButton, editButton, removeButton);
     }
 
     @Override
     public void removeUpdate(DocumentEvent e)
     {
-        setButtons();
+        setButtons(this, table, addButton, editButton, removeButton);
     }
 
     @Override
     public void changedUpdate(DocumentEvent e)
     {
-        setButtons();
+        setButtons(this, table, addButton, editButton, removeButton);
     }
 
-    private void setButtons()
-    {
-        boolean validated = validateInput();
-        boolean rowSelected = table.getSelectedRow() > -1;
-        addButton.setEnabled(validated);
-        editButton.setEnabled(validated && rowSelected);
-        removeButton.setEnabled(rowSelected);
-    }
-
-    private boolean validateInput()
+    @Override
+    public boolean validateValue()
     {
         try
         {
             return DateTime.parse(dateArea.getText(), dateFormatter) != null &&
                     Period.parse(durationArea.getText(), Utils.periodFormatter) != null;
-        } catch (NumberFormatException e)
-        {
-            return false;
         } catch (IllegalArgumentException e)
         {
             return false;
@@ -227,7 +207,7 @@ public class DeparturesWindow extends JFrame implements ActionListener, Document
     @Override
     public void valueChanged(ListSelectionEvent e)
     {
-        setButtons();
+        setButtons(this, table, addButton, editButton, removeButton);
         int row = table.getSelectedRow();
         if (row > -1 && row < table.getRowCount())
         {
