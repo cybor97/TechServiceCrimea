@@ -11,19 +11,18 @@ import java.awt.event.WindowEvent;
 
 public class MainWindow extends JFrame implements ActionListener
 {
-    private final JPanel mainPanel;
     private final JButton callsButton;
     private final JButton departuresButton;
     private final JButton exitButton;
 
     public MainWindow() throws Exception
     {
-        super("Main window");
+        super();
         setSize(200, 100);
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((int) (size.getWidth() / 2 - getWidth() / 2), (int) (size.getHeight() / 2 - getHeight() / 2));
 
-        mainPanel = new JPanel(new GridLayout(0, 1));
+        JPanel mainPanel = new JPanel(new GridLayout(0, 1));
 
         callsButton = new JButton("Вызовы");
         callsButton.addActionListener(this);
