@@ -6,6 +6,7 @@ import ui.DeparturesWindow;
 import ui.MainWindow;
 
 import javax.swing.*;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 
 class Main
@@ -16,9 +17,7 @@ class Main
         {
             initServer();
             DBHolder.getInstance();
-            for (UIManager.LookAndFeelInfo current : UIManager.getInstalledLookAndFeels())
-                if (current.getName().equals("Nimbus"))
-                    UIManager.setLookAndFeel(current.getClassName());
+            UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
             new MainWindow();
         } catch (Exception e)
         {
