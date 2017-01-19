@@ -1,11 +1,12 @@
 package data_exchange;
 
+import utils.GlobalLogger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
@@ -61,7 +62,7 @@ public class TSCServer implements Runnable
                         Thread.sleep(100);
                     } catch (InterruptedException e)
                     {
-                        Logger.getGlobal().log(WARNING, "Interrupted while sleeping.");
+                        GlobalLogger.log(WARNING, "Interrupted while sleeping.");
                     }
                 }
             });
